@@ -1,24 +1,24 @@
 #include "state_menu.h"
 
-bool HasInit = false;
-unsigned short frameCounter = 0;
+bool menuHasInit = false;
+unsigned short menuframeCounter = 0;
 
 void Menu()
 {
-	if(!HasInit)
+	if(!menuHasInit)
 	{
 		Menu_Init(); // One-time initialization of menu state.
-		HasInit = true;
+		menuHasInit = true;
 	}
 	
 	Menu_Input();
 	Menu_Update();
 	Menu_Draw();
 	
-	frameCounter++; // Update frame counter for this state, resetting whenever it hits 32.
-	if(frameCounter > 32)
+	menuframeCounter++; // Update frame counter for this state, resetting whenever it hits 32.
+	if(menuframeCounter > 32)
 	{
-		frameCounter = 0;
+		menuframeCounter = 0;
 	}
 }
 
@@ -39,12 +39,23 @@ void Menu_Init()
 void Menu_Input()
 {
 	//Pushing start will push the Game state onto the stack, starting the game.
+	key_poll();
+	
+	if(key_hit(KEY_START))
+	{
+		//Push game state on after offloading this state.
+		Menu_Offload();
+		State nextState;
+		nextState.StatePointer = Game;
+		g_StateStack->states.push(nextState);
+	}
+	
 }
 
 void Menu_Update()
 {
 	//Use the framecounter to slow this down a little.
-	if(frameCounter % 4 != 0) return;
+	if(menuframeCounter % 4 != 0) return;
 
 	// Cycle palette colours 12-20
 	
@@ -61,4 +72,12 @@ void Menu_Update()
 void Menu_Draw()
 {
 	//Nothing to be done.
+}
+
+void Menu_Offload()
+{
+	//menuHasInit = false;
+	
+	M4_CLEAR(); // Clear Screen
+	memset(pal_bg_mem, 0, 64); // Clear Palette
 }

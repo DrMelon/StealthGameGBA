@@ -4,7 +4,10 @@
 #include <stdlib.h>
 #include "tonclib/include/tonc.h" // Using TONC - Note that some files may have been edited by me to work better.
 #include "statestack.h" // Game State Stack - basically for handling game states.
+
+//Game State Includes
 #include "state_menu.h"
+#include "state_game.h"
 
 
 int main()

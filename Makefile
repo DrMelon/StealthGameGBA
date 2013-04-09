@@ -28,6 +28,7 @@ TARGET = main
 OBJECTS = \
 	$(TARGET).o \
 	state_menu.o \
+	state_game.o \
 	title_screen.o \
 	libtonc.a
 

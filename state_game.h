@@ -1,5 +1,4 @@
-
-// Menu game state - basically has a title screen with "PUSH START" on it. Yay!
+// Game game state - actual game logic goes in here.
 #pragma once
 
 #include <string.h>
@@ -12,9 +11,9 @@
 // Images Needed
 #include "title_screen.h"
 
-void Menu_Init();
-void Menu_Input();
-void Menu_Update();
-void Menu_Draw();
-void Menu_Offload();
+void Game_Init();
+void Game_Input();
+void Game_Update();
+void Game_Draw();
+void Game_Offload();
 
