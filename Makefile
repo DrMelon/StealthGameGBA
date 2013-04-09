@@ -21,8 +21,14 @@ TARGET = main
 
 # The object files to link into the final program.
 # The rules below will build foo.o from foo.cpp automatically.
+
+# tonclib stuff is pre-compiled.
+
+
 OBJECTS = \
 	$(TARGET).o \
+	state_menu.o \
+	title_screen.o \
 	libtonc.a
 
 # The default target to make if none is specified.
