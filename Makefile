@@ -30,6 +30,7 @@ OBJECTS = \
 	state_menu.o \
 	state_game.o \
 	title_screen.o \
+	prototype_gfx.o \
 	libtonc.a
 
 # The default target to make if none is specified.

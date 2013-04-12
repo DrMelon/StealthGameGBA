@@ -9,7 +9,7 @@
 #include "statelist.h"
 
 // Images Needed
-
+#include "prototype_gfx.h"
 
 void Game_Init();
 void Game_Input();

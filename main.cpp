@@ -30,9 +30,7 @@ int main()
 		
 		// Run Current State
 		g_StateStack->states.top().StatePointer();
-		
-		
-		
+
 	}
 	
 	return 0;
