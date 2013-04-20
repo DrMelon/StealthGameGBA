@@ -3,6 +3,7 @@
 # Use the ARM C++ toolchain.
 CC = arm-eabi-g++
 OBJCOPY = arm-eabi-objcopy
+INC = -I .\\libs
 
 # Compiler options:
 # -g      Enable debugging symbols
@@ -27,10 +28,13 @@ TARGET = main
 
 OBJECTS = \
 	$(TARGET).o \
+	player.o \
 	state_menu.o \
 	state_game.o \
 	title_screen.o \
 	prototype_gfx.o \
+	levels.o \
+	tonchelper.o \
 	libtonc.a
 
 # The default target to make if none is specified.
@@ -47,7 +51,7 @@ $(TARGET).elf: $(OBJECTS)
 
 # Compile a .cpp file into a .o file.
 %.o: %.cpp
-	$(CC) $(CFLAGS) $(MODEL) -c $<
+	$(CC) $(CFLAGS) $(INC) $(MODEL) -c $<
 
 # Run the ROM image using VBA.
 run: $(TARGET).gba
