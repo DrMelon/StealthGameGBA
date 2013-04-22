@@ -15,7 +15,7 @@ main.o: main.cpp tonclib/include/tonc.h tonclib/include/tonc_types.h \
   tonclib/include/tonc_video.h tonclib/include/tonc_nocash.h \
   tonclib/include/tonc_text.h statestack.h state_menu.h statelist.h \
   title_screen.h state_game.h tonchelper.h player.h vectormath.h \
-  libs/fixed_point.h prototype_gfx.h levels.h
+  libs/fixed_point.h prototype_gfx.h shadowtiles_simple.h levels.h
 player.o: player.cpp player.h tonclib/include/tonc.h \
   tonclib/include/tonc_types.h tonclib/include/tonc_memmap.h \
   tonclib/include/tonc_memdef.h tonclib/include/tonc_bios.h \
@@ -34,7 +34,7 @@ state_game.o: state_game.cpp state_game.h tonclib/include/tonc.h \
   tonclib/include/tonc_surface.h tonclib/include/tonc_video.h \
   tonclib/include/tonc_nocash.h tonclib/include/tonc_text.h tonchelper.h \
   statelist.h statestack.h player.h vectormath.h libs/fixed_point.h \
-  prototype_gfx.h levels.h
+  prototype_gfx.h shadowtiles_simple.h levels.h
 state_menu.o: state_menu.cpp state_menu.h tonclib/include/tonc.h \
   tonclib/include/tonc_types.h tonclib/include/tonc_memmap.h \
   tonclib/include/tonc_memdef.h tonclib/include/tonc_bios.h \

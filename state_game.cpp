@@ -29,7 +29,7 @@ void Game_Init()
 	REG_DISPCNT = DCNT_MODE0 | DCNT_BG0 | DCNT_BG1 | DCNT_BG2 | DCNT_BG3 | DCNT_OBJ;
 	// Set up backgrounds
 	REG_BG3CNT = BG_CBB(0) | BG_SBB(30) | BG_8BPP | BG_REG_32x32;
-	REG_BG2CNT = BG_CBB(0) | BG_SBB(29) | BG_8BPP | BG_REG_32x32;
+	REG_BG2CNT = BG_CBB(1) | BG_SBB(29) | BG_8BPP | BG_REG_32x32;
 	REG_BG1CNT = BG_CBB(0) | BG_SBB(28) | BG_8BPP | BG_REG_32x32;	
 	REG_BG0CNT = BG_CBB(0) | BG_SBB(27) | BG_8BPP | BG_REG_32x32;	
 	
@@ -39,15 +39,17 @@ void Game_Init()
 	memcpy(pal_obj_mem, pal_bg_mem, prototype_gfxPalLen);
 	// Fill charblock 0
 	memcpy(&tile_mem[0][0], prototype_gfxTiles, prototype_gfxTilesLen);
+	// Charblock 1
+	memcpy(&tile_mem[1][0], shadowtiles_simpleTiles, shadowtiles_simpleTilesLen);
 
 	// Clear Screenblocks 
 	memcpy(&se_mem[30], Background, sizeof(u16)*32*32); // Fill BG3 with Background (wallpaper) tiles
-	memcpy(&se_mem[29][0], Blank, sizeof(u16)*32*32); // Filling the others with Blank tiles.
+	memset(&se_mem[29][0], 2, sizeof(u16)*32*32); // Filling the others with Blank tiles. // NOT WORKING?
 	memcpy(&se_mem[28][0], Blank, sizeof(u16)*32*32); // 
 	memcpy(&se_mem[27][0], Blank, sizeof(u16)*32*32); // 
 	
 	// Load Level 1 Layout into BG1
-	memcpy(&se_mem[29][0], Level1, sizeof(u16)*32*32);
+	memcpy(&se_mem[28][0], Level1, sizeof(u16)*32*32);
 	
 	// Initialize Object Buffer
 	InitializeObjects();
@@ -73,6 +75,10 @@ void Game_Init()
 	// Set up Maximum Speed
 	thePlayer->MaxVelocity.X = 2;
 	thePlayer->MaxVelocity.Y = 6;
+	
+	
+	// Set up shadows for Level
+	GenerateShadowMap((u16**)Level1);
 
 	
 

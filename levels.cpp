@@ -138,3 +138,63 @@ const u16 Level1[32][32] = {
 	{10,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  8},
 	{10,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  8}
 };
+
+
+
+void GenerateShadowMap(u16** Level)
+{
+	u16 thisMap[32][32];
+	for(int x = 0; x < 32; x++)
+	{
+		for(int y = -0; y < 32; y++)
+		{
+			// Find terrain pieces and build down and right off of them.
+			// We have two pieces - slant and square.
+			
+			// For something like this:
+			//
+			// +--------+
+			// |        |
+			// |        |
+			// +--------+
+			
+			// We want the shadows to slant off of the top-rightmost corner down to the ground (or possibly just a set distance with other slants later)
+			// The rest of the body will trail the black shadow squares downwards.
+			if(Level[y][x] == 2)
+			{
+				//Topright corner is 2 (there will be other test cases...)
+				
+				// The first tile is immediately to the right of this tile.
+				thisMap[y][x+1] = 1; // 1 for slant, 2 for solid, 0 for clear
+				
+				// 
+				int ySlant = y;
+				
+				// 
+				int xSlant = x;
+				
+				
+				
+				// Move in a (1,1) iterative pattern, towards the ground, placing slant shadows on this map.
+				while(ySlant < 32 && xSlant < 32)
+				{
+					ySlant++;
+					xSlant++;
+					thisMap[ySlant][xSlant] = 1;
+				}
+				
+			}
+			
+			// And now we place squares under each slant tile.
+			
+			// TODO!
+			
+			
+		}
+	}
+	
+	
+	// Copy to BG2.
+	//memcpy(&se_mem[29][0], thisMap, sizeof(u16)*32*32);
+	
+}

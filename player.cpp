@@ -132,8 +132,10 @@ void Player::Update()
 		ScrollY--;
 	}
 	
+	REG_BG1HOFS = ScrollX;
 	REG_BG2HOFS = ScrollX;
 	REG_BG3HOFS = ScrollX;
+	REG_BG1VOFS = ScrollY;
 	REG_BG2VOFS = ScrollY;
 	REG_BG3VOFS = ScrollY;
 	
@@ -166,7 +168,7 @@ u16 Player::GetMapTileAt(int x, int y)
 	// Colour the tile DEBUG
 	//se_mem[29][TileX + (TileY*32)] = 20;
 	
-	return se_mem[29][TileX + (TileY*32)];
+	return se_mem[28][TileX + (TileY*32)];
 	
 	
 	

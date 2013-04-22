@@ -34,6 +34,7 @@ OBJECTS = \
 	state_pause.o \
 	title_screen.o \
 	prototype_gfx.o \
+	shadowtiles_simple.o \
 	levels.o \
 	tonchelper.o \
 	libtonc.a
