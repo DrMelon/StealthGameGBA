@@ -31,6 +31,7 @@ OBJECTS = \
 	player.o \
 	state_menu.o \
 	state_game.o \
+	state_pause.o \
 	title_screen.o \
 	prototype_gfx.o \
 	levels.o \

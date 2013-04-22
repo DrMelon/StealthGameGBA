@@ -23,7 +23,7 @@
 // 23      <BLANK>
 // 24 - 26 Walls, Single Tile, Horizontal
 // 27 - 28 Security Cameras, Left and Right
-// 39 - 30 Player Walking
+// 29 - 30 Player Walking
 // 31      <BLANK>
 // 32 - 34 Walls, Single Tile, Vertical
 // 35 - 38 Player Death Animation

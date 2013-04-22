@@ -53,8 +53,19 @@ void Game_Init()
 	InitializeObjects();
 	
 	// Copying tiles from charblock 0 to charblock 4
-	tile_mem[4][0] = tile_mem[0][26]; // Player Idle Tile is 13 (26 in 4bpp tiles) - Making it into tile 0 here, as it is the most important tile.
-	tile_mem[4][1] = tile_mem[0][27]; // Because TONC handles tiles in 4bpp mode usually, I have to copy both halves of the tile.
+	CopyTile(13, 0, 0, 4); // Player Idle Tile is 13
+	
+	CopyTile(29, 0, 1, 4);  // Walk Tile 1 is 29
+	CopyTile(30, 0, 2, 4);  // Walk Tile 2 is 30
+	
+	CopyTile(21, 0, 3, 4);  // Hacking 1 is 21
+	CopyTile(22, 0, 4, 4);  // Hacking 2 is 21
+	
+	CopyTile(35, 0, 5, 4);  // Death  is 35...
+	CopyTile(36, 0, 6, 4);
+	CopyTile(37, 0, 7, 4);
+	CopyTile(38, 0, 8, 4);  // ... until 38
+	
 	
 	// Create Player object
 	thePlayer = new Player(32, 32, (u16**)Level1);
@@ -74,17 +85,30 @@ void Game_Input()
 	
 	if(key_hit(KEY_START))
 	{
-		//Push Pause State
-		
+		//Push Pause State WITHOUT offloading this state - preserves images etc.
+		State nextState;
+		nextState.StatePointer = Pause;
+		g_StateStack->states.push(nextState);
 	}
 	
+		
 	if(key_is_down(KEY_LEFT))
 	{
 		thePlayer->Acceleration.X = -0.1;
+		thePlayer->currentAnimation = thePlayer->runAnim;
+		thePlayer->runAnim->Flipped = true;
+		thePlayer->idleAnim->Flipped = true;
+		thePlayer->hackAnim->Flipped = true;
+		thePlayer->deathAnim->Flipped = true;
 	}
 	else if(key_is_down(KEY_RIGHT))
 	{
 		thePlayer->Acceleration.X = 0.1;
+		thePlayer->currentAnimation = thePlayer->runAnim;
+		thePlayer->runAnim->Flipped = false;
+		thePlayer->idleAnim->Flipped = false;
+		thePlayer->hackAnim->Flipped = false;
+		thePlayer->deathAnim->Flipped = false;		
 	}
 	else
 	{
@@ -95,6 +119,21 @@ void Game_Input()
 	{
 		//Check to see if we can jump
 		thePlayer->Velocity.Y = -4;
+	}
+	if(key_is_down(KEY_B))
+	{
+		thePlayer->currentAnimation = thePlayer->hackAnim;
+	}
+	if(key_hit(KEY_SELECT))
+	{	
+		//Death anim test
+		thePlayer->currentAnimation = thePlayer->deathAnim;
+	}
+	
+	// No Keys Pressed
+	if(REG_KEYINPUT == KEY_MASK)
+	{
+		thePlayer->currentAnimation = thePlayer->idleAnim;
 	}
 	
 }

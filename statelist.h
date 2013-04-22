@@ -7,4 +7,4 @@
 
 void Menu();
 void Game();
-
+void Pause();

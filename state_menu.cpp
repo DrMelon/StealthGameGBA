@@ -78,6 +78,6 @@ void Menu_Offload()
 {
 	//menuHasInit = false;
 	
-	M4_CLEAR(); // Clear Screen
+	memset(vid_mem, 0, 76800); // Wipe Video Memory
 	memset(pal_bg_mem, 0, 64); // Clear Palette
 }

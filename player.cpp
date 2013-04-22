@@ -9,8 +9,8 @@ Player::Player(int x, int y, u16** _currentMap)
 	Velocity.X = 0;
 	Velocity.Y = 0;
 	
-	Width = 8;
-	Height = 8;
+	Width = 7;
+	Height = 7;
 	
 	Acceleration.X = 0;
 	Acceleration.Y = 0.245f; // Gravity
@@ -19,6 +19,30 @@ Player::Player(int x, int y, u16** _currentMap)
 	
 	ScrollX = 0;
 	ScrollY = 0;
+	
+	frameCounter = 0;
+	
+	// Set up animations - because TONC sees tile references in 4bpp mode, i need to multiply the tile index by 2 each time.
+	idleAnim = new Animation(1,1);
+	idleAnim->Frames[0] = 0;
+	
+	runAnim = new Animation(2,15);
+	runAnim->Frames[0] = 1*2;
+	runAnim->Frames[1] = 2*2;
+	
+	hackAnim = new Animation(2,5);
+	hackAnim->Frames[0] = 3*2;
+	hackAnim->Frames[1] = 4*2;
+
+	
+	deathAnim = new Animation(4,15);
+	deathAnim->Frames[0] = 5*2;
+	deathAnim->Frames[1] = 6*2;
+	deathAnim->Frames[2] = 7*2;
+	deathAnim->Frames[3] = 8*2;
+	
+	currentAnimation = idleAnim;
+	
 	
 	
 	Draw();
@@ -32,11 +56,23 @@ void Player::Draw()
 	ScreenPositionX = (int)Position.X - ScrollX;
 	ScreenPositionY = (int)Position.Y - ScrollY;
 	
+
+	
 	
 	// Player Object is always object 0
+	if(currentAnimation->Flipped == true)
+	{
+		SetObject(0, ATTR0_SHAPE(0) | ATTR0_8BPP | ATTR0_REG | ATTR0_Y(ScreenPositionY),
+				  ATTR1_SIZE(0) | ATTR1_X(ScreenPositionX) | ATTR1_HFLIP,
+				  ATTR2_ID(currentAnimation->Frames[currentAnimation->CurrentFrame]));
+	}
+	else
+	{
 	SetObject(0, ATTR0_SHAPE(0) | ATTR0_8BPP | ATTR0_REG | ATTR0_Y(ScreenPositionY),
                       ATTR1_SIZE(0) | ATTR1_X(ScreenPositionX),
-                      ATTR2_ID(0));
+                      ATTR2_ID(currentAnimation->Frames[currentAnimation->CurrentFrame]));
+	}
+
 }
 
 void Player::Update()
@@ -76,8 +112,40 @@ void Player::Update()
 	//Update Position using Velocity.
 	Position = AddVectors2D(Position, Velocity);	
 	
+	//Update Scrolling from Position.
+	
+	if(((int)Position.X - ScrollX) > SCREEN_WIDTH - 16)
+	{
+		ScrollX++;
+	}
+	else if(((int)Position.X - ScrollX) < 16 && ScrollX > 0)
+	{
+		ScrollX--;
+	}
+	
+	if(((int)Position.Y - ScrollY) > SCREEN_HEIGHT - 16)
+	{
+		ScrollY++;
+	}
+	else if(((int)Position.Y - ScrollY) < 16 && ScrollY > 0)
+	{
+		ScrollY--;
+	}
+	
+	REG_BG2HOFS = ScrollX;
+	REG_BG3HOFS = ScrollX;
+	REG_BG2VOFS = ScrollY;
+	REG_BG3VOFS = ScrollY;
 	
 	
+	// Update Animation & frameCounter
+	currentAnimation->Update(frameCounter);
+	frameCounter++;
+	
+	if(frameCounter > 60)
+	{
+		frameCounter = 0;
+	}
 
 	
 }
@@ -109,34 +177,14 @@ void Player::CheckCollision()
 
 	// Have to check X and Y axes separately to prevent "stickiness"
 	
-	if(GetMapTileAt(Position.X + Velocity.X, Position.Y) != 7 || GetMapTileAt(Position.X + Velocity.X + Width, Position.Y) != 7 ) // Left and Right Sides
-	{
-		Velocity.X = 0;
-	}
+	if(GetMapTileAt(Position.X + Velocity.X, Position.Y + Height) != 7 || GetMapTileAt(Position.X + Velocity.X, Position.Y) != 7 || GetMapTileAt(Position.X + Velocity.X + Width, Position.Y) != 7 || GetMapTileAt(Position.X + Velocity.X + Width, Position.Y + Height) != 7 ) // Have to check all 4 corners for X axis
+	{																																						
+		Velocity.X = 0;																																		
+	}                                                                                                                                                       
 	
-	if(GetMapTileAt(Position.X, Position.Y + Velocity.Y + Height) != 7 || GetMapTileAt(Position.X, Position.Y + Velocity.Y) != 7 ) // Top and Bottom Sides
+	if(GetMapTileAt(Position.X, Position.Y + Velocity.Y + Height) != 7 || GetMapTileAt(Position.X + Width, Position.Y + Velocity.Y) != 7 || GetMapTileAt(Position.X, Position.Y + Velocity.Y) != 7 || GetMapTileAt(Position.X + Width, Position.Y + Velocity.Y + Height) != 7 ) // Have to check all 4 corners for Y axis
 	{
 		Velocity.Y = 0;
 	}
-/*
-	if(GetMapTileAt(Position.X + Velocity.X, Position.Y + Velocity.Y) != 7)
-	{
-		//If this is a solid tile, we want to clip the velocity to the distance from us to the tile.
-		
-		// Get the distance from us to the next tile:
-		Vector3D DistToTile;
-		DistToTile.X = ((int)(Position.X + Velocity.X) / 8);
-		DistToTile.X -= Position.X;
-		DistToTile.Y = ((int)(Position.Y + Velocity.Y) / 8);
-		DistToTile.Y -= Position.Y;
-		
-		// Set the velocity (distance to be covered in this frame) to the distance between us and the tile, effectively making us run into it and stop short.
-	//	Velocity.X = DistToTile.X;
-	//	Velocity.Y = DistToTile.Y;
-	
-		Velocity.X = 0;
-		Velocity.Y = 0;
-		
-	}
-	*/
+
 }

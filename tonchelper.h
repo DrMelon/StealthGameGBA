@@ -28,3 +28,9 @@ INLINE void SetObjectPosition(int objectID, int X, int Y)
 	OBJ_ATTR *theObject = &obj_buffer[objectID];
 	obj_set_pos(theObject, X, Y);
 }
+
+INLINE void CopyTile(int sourceNum, int sourceCB, int destNum, int destinationCB)
+{
+	tile_mem[destinationCB][destNum*2] = tile_mem[sourceCB][sourceNum*2]; // 
+	tile_mem[destinationCB][destNum*2+1] = tile_mem[sourceCB][sourceNum*2 + 1]; // Because TONC handles tiles in 4bpp mode usually, I have to copy both halves of the tile.	
+}
