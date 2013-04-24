@@ -12,8 +12,6 @@
 
 int main()
 {
-
-	
 	// Enable IRQ Interrupts
 	irq_init(NULL);
 	irq_add(II_VBLANK, NULL);

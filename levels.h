@@ -2,6 +2,7 @@
 
 // Levels.h - Contains level layouts and information about the tileset.
 #include "tonclib/include/tonc.h" 
+#include "tonchelper.h"
 
 #include <string.h>
 
@@ -39,4 +40,4 @@ extern const u16 Level1[32][32];
 extern const u16 Level2[32][32];
 extern const u16 Level3[32][32];
 
-void GenerateShadowMap(u16** Level);
+void GenerateShadowMap();

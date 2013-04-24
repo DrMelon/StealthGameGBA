@@ -5,9 +5,13 @@
 #include <stdlib.h>
 #include "tonclib/include/tonc.h" 
 #include "tonchelper.h"
+#include "levels.h"
 
 // Master State List
 #include "statelist.h"
+
+// Graphics
+#include "pausestuff.h"
 
 
 void Pause_Init();

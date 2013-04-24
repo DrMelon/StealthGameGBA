@@ -1,28 +1,10 @@
 #include "player.h"
 
-Player::Player(int x, int y, u16** _currentMap)
+Player::Player(int x, int y, int width, int height, int objID) : super(x, y, width, height, objID)
 {
-	Position.X = x;
-	Position.Y = y;
-	Position.Z = 0;
-	
-	Velocity.X = 0;
-	Velocity.Y = 0;
-	
-	Width = 7;
-	Height = 7;
-	
-	Acceleration.X = 0;
 	Acceleration.Y = 0.245f; // Gravity
-	
-	Drag = 0.3;
-	
-	ScrollX = 0;
-	ScrollY = 0;
-	
-	frameCounter = 0;
-	
-	// Set up animations - because TONC sees tile references in 4bpp mode, i need to multiply the tile index by 2 each time.
+
+	// Set up animations - because TONC sees object tile references in 4bpp mode, i need to multiply the tile index by 2 each time.
 	idleAnim = new Animation(1,1);
 	idleAnim->Frames[0] = 0;
 	
@@ -41,76 +23,59 @@ Player::Player(int x, int y, u16** _currentMap)
 	deathAnim->Frames[2] = 7*2;
 	deathAnim->Frames[3] = 8*2;
 	
+	lookupAnim = new Animation(1,1);
+	lookupAnim->Frames[0] = 9*2;
+	
+	lookdownAnim = new Animation(1,1);
+	lookdownAnim->Frames[0] = 10*2;
+	
 	currentAnimation = idleAnim;
-	
-	
-	
+
 	Draw();
 }
 
 void Player::Draw()
 {
-	// Animation Properties would go here.
-	
-	//Convert world coordinates to screen coordinates - player needs to know scrolling offset.
-	ScreenPositionX = (int)Position.X - ScrollX;
-	ScreenPositionY = (int)Position.Y - ScrollY;
-	
-
 	
 	
-	// Player Object is always object 0
-	if(currentAnimation->Flipped == true)
+	// Change skin tone (palette entries 20 and 23) and goggle colour (17) depending on shadow level
+	switch(StealthState)
 	{
-		SetObject(0, ATTR0_SHAPE(0) | ATTR0_8BPP | ATTR0_REG | ATTR0_Y(ScreenPositionY),
-				  ATTR1_SIZE(0) | ATTR1_X(ScreenPositionX) | ATTR1_HFLIP,
-				  ATTR2_ID(currentAnimation->Frames[currentAnimation->CurrentFrame]));
+		case 0:
+			// Fully Visible:
+			pal_obj_mem[20] = RGB15(29, 23, 15);
+			pal_obj_mem[23] = RGB15(31, 25, 14);
+			pal_obj_mem[17] = RGB15(31, 0, 0);
+			break;
+		case 1:
+			// Half-Visible:
+			pal_obj_mem[20] = RGB15(20, 16, 13);
+			pal_obj_mem[23] = RGB15(21, 18, 14);
+			pal_obj_mem[17] = RGB15(31, 31, 0);	
+			break;
+		case 2:
+			// Not Visible:
+			pal_obj_mem[20] = RGB15(12, 9, 9);
+			pal_obj_mem[23] = RGB15(12,10,10);
+			pal_obj_mem[17] = RGB15(2, 31, 0);	
+			break;
+		case 3:
+			// Half-Visible again
+			pal_obj_mem[20] = RGB15(20, 16, 13);
+			pal_obj_mem[23] = RGB15(21, 18, 14);
+			pal_obj_mem[17] = RGB15(31, 31, 0);	
+			break;
+			
+			
 	}
-	else
-	{
-	SetObject(0, ATTR0_SHAPE(0) | ATTR0_8BPP | ATTR0_REG | ATTR0_Y(ScreenPositionY),
-                      ATTR1_SIZE(0) | ATTR1_X(ScreenPositionX),
-                      ATTR2_ID(currentAnimation->Frames[currentAnimation->CurrentFrame]));
-	}
+	
+	super::Draw();
 
 }
 
 void Player::Update()
 {
-
-	//Update Velocity using Acceleration.
-	Velocity = AddVectors2D(Velocity, Acceleration);	
-	
-	//Clip Velocity to Max Velocity
-	if(Velocity.X < -MaxVelocity.X)
-	{
-		Velocity.X = -MaxVelocity.X;
-	}
-	if(Velocity.X > MaxVelocity.X)
-	{
-		Velocity.X = MaxVelocity.X;
-	}
-	if(Velocity.Y < -MaxVelocity.Y)
-	{
-		Velocity.Y = -MaxVelocity.Y;
-	}
-	if(Velocity.Y > MaxVelocity.Y)
-	{
-		Velocity.Y = MaxVelocity.Y;
-	}
-	
-	
-	if(fabs(Acceleration.X) < (double)0.1f) // If there is no force being applied, drag will slow us down.
-	{
-		Velocity.X *= Drag; 
-	}
-	
-	// Check for collisions before updating position with velocity.
-	// CheckCollision will alter the velocity to prevent a collision before it happens. 
-	CheckCollision();
-	
-	//Update Position using Velocity.
-	Position = AddVectors2D(Position, Velocity);	
+	super::Update();
 	
 	//Update Scrolling from Position.
 	
@@ -140,53 +105,19 @@ void Player::Update()
 	REG_BG3VOFS = ScrollY;
 	
 	
-	// Update Animation & frameCounter
-	currentAnimation->Update(frameCounter);
-	frameCounter++;
-	
-	if(frameCounter > 60)
-	{
-		frameCounter = 0;
-	}
+	// Change stealth state depending on area visiblity.
+	StealthState = GetMapTileAt(Position.X+HalfWidth, Position.Y, 29);
+
 
 	
 }
 
-u16 Player::GetMapTileAt(int x, int y)
+u16 Player::GetMapTileAt(int x, int y, int screenblock = 28)
 {
-	// Retrieve map tile on current level at this world coordinate.
-	
-	int TileX, TileY;
-	
-	// Tiles are 8x8, so world -> tile is just a division by 8
-	
-	TileX = x / 8;
-	TileY = y / 8;
-	
-	// Tilemap is 32x32, so we add the X-coordinate multiplied by 32 to get the right place in memory.
-	
-	// Colour the tile DEBUG
-	//se_mem[29][TileX + (TileY*32)] = 20;
-	
-	return se_mem[28][TileX + (TileY*32)];
-	
-	
-	
+	return super::GetMapTileAt(x, y, screenblock);
 }
 
 void Player::CheckCollision()
 {
-
-	// Have to check X and Y axes separately to prevent "stickiness"
-	
-	if(GetMapTileAt(Position.X + Velocity.X, Position.Y + Height) != 7 || GetMapTileAt(Position.X + Velocity.X, Position.Y) != 7 || GetMapTileAt(Position.X + Velocity.X + Width, Position.Y) != 7 || GetMapTileAt(Position.X + Velocity.X + Width, Position.Y + Height) != 7 ) // Have to check all 4 corners for X axis
-	{																																						
-		Velocity.X = 0;																																		
-	}                                                                                                                                                       
-	
-	if(GetMapTileAt(Position.X, Position.Y + Velocity.Y + Height) != 7 || GetMapTileAt(Position.X + Width, Position.Y + Velocity.Y) != 7 || GetMapTileAt(Position.X, Position.Y + Velocity.Y) != 7 || GetMapTileAt(Position.X + Width, Position.Y + Velocity.Y + Height) != 7 ) // Have to check all 4 corners for Y axis
-	{
-		Velocity.Y = 0;
-	}
-
+	super::CheckCollision();
 }

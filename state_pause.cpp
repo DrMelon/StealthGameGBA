@@ -12,9 +12,10 @@ void Pause()
 		pauseHasInit = true;
 	}
 	
-	Pause_Input();
+	
 	Pause_Update();
 	Pause_Draw();
+	Pause_Input();
 	
 	pauseframeCounter++; // Update frame counter for this state, resetting whenever it hits 32.
 	if(pauseframeCounter > 32)
@@ -26,8 +27,23 @@ void Pause()
 void Pause_Init()
 {
 
-	// Set up text and write PAUSED text to screen.
+	// Copy PAUSED graphics to CB2
+	memcpy(&tile_mem[2][0], pausestuffTiles, pausestuffTilesLen);
 	
+	// Copy Ball & Connector graphics to CB4, at the end
+	CopyTile(6, 2, 400, 4); // Ball Topleft
+	CopyTile(7, 2, 401, 4); // Ball Topright
+	CopyTile(12, 2, 402, 4); // Ball Bottomleft
+	CopyTile(13, 2, 403, 4); // Ball Bottomright
+	
+	CopyTile(8,2, 404, 4); //Connector Topleft
+	CopyTile(9,2, 405, 4); //Connector Topright
+	CopyTile(14,2, 406, 4); //Connector Bottomleft
+	CopyTile(15,2, 407, 4); //Connector Bottomright
+	
+	
+	
+
 
 }
 
@@ -39,6 +55,7 @@ void Pause_Input()
 	if(key_hit(KEY_START))
 	{
 		// Pop pause state & offload
+		Pause_Offload();
 		g_StateStack->states.pop();
 	}
 	
@@ -55,6 +72,13 @@ void Pause_Update()
 void Pause_Draw()
 {
 	//Pause draw routines go here
+	// Write "PAUSED" on BG0.
+	SetTile(27, 10, 10, 0);
+	SetTile(27, 12, 10, 1);
+	SetTile(27, 14, 10, 2);
+	SetTile(27, 16, 10, 3);
+	SetTile(27, 18, 10, 4);
+	SetTile(27, 20, 10, 5);
 	
 	// Update Objects
 	UpdateObjects();
@@ -62,5 +86,6 @@ void Pause_Draw()
 
 void Pause_Offload()
 {
-	// Clear stuff out, pop stack
+	// Clear BG0
+	memcpy(&se_mem[27][0], Blank, sizeof(u16)*32*32);
 }

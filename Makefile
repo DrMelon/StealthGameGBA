@@ -9,7 +9,9 @@ INC = -I .\\libs
 # -g      Enable debugging symbols
 # -O3     Full compiler optimisations
 # -Wall   Enable all warnings
-CFLAGS = -g -O3 -Wall
+# -S 	  Generate assembly
+#CFLAGS = -g -O3 -Wall
+CGLAGS = -g -Wall
 
 # Architecture options for the GBA.
 #MODEL = -mthumb -mthumb-interwork -specs=gba_mb.specs
@@ -28,12 +30,14 @@ TARGET = main
 
 OBJECTS = \
 	$(TARGET).o \
+	gameobjects.o \
 	player.o \
 	state_menu.o \
 	state_game.o \
 	state_pause.o \
 	title_screen.o \
 	prototype_gfx.o \
+	pausestuff.o \
 	shadowtiles_simple.o \
 	levels.o \
 	tonchelper.o \
@@ -67,7 +71,7 @@ run-%:
 
 # Remove all the compiled files.	
 clean:
-	rm -f *.gba *.elf *.o depend.mk
+	rm -f *.gba *.elf *.o *.s depend.mk
 
 # Automatically extract dependencies from .cpp files.
 # Invoking the compiler with -MM below makes it scan the source files and

@@ -34,3 +34,13 @@ INLINE void CopyTile(int sourceNum, int sourceCB, int destNum, int destinationCB
 	tile_mem[destinationCB][destNum*2] = tile_mem[sourceCB][sourceNum*2]; // 
 	tile_mem[destinationCB][destNum*2+1] = tile_mem[sourceCB][sourceNum*2 + 1]; // Because TONC handles tiles in 4bpp mode usually, I have to copy both halves of the tile.	
 }
+
+INLINE void SetTile(u16 screenblock, u16 x, u16 y, u16 tilenum)
+{
+	se_mem[screenblock][x + y*32] = tilenum;
+}
+
+INLINE u16 GetTile(u16 screenblock, u16 x, u16 y)
+{
+	return se_mem[screenblock][x + y*32];
+}

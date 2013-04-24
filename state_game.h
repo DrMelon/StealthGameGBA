@@ -15,6 +15,7 @@
 // Images Needed
 #include "prototype_gfx.h"
 #include "shadowtiles_simple.h"
+#include "visioncone.h"
 
 // Levels
 #include "levels.h"
