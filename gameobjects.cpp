@@ -11,6 +11,9 @@ GameObject::GameObject(int x, int y, int width, int height, int objID)
 	Velocity.X = 0;
 	Velocity.Y = 0;
 	
+	Shape = 0;
+	Size = 0;
+	
 	Width = width;
 	HalfWidth = Width / (double)2;
 	Height = height;
@@ -43,16 +46,16 @@ void GameObject::Draw()
 	
 	// Objects are given an ID on spawning - all objects are spawned through an object creator.
 	// The object creator won't allow an ID greater of 128.
-	if(currentAnimation->Flipped == true)
+	if(facingLeft == true)
 	{
-		SetObject(objectID, ATTR0_SHAPE(0) | ATTR0_8BPP | ATTR0_REG | ATTR0_Y(ScreenPositionY),
-				  ATTR1_SIZE(0) | ATTR1_X(ScreenPositionX) | ATTR1_HFLIP,
+		SetObject(objectID, ATTR0_SHAPE(Shape) | ATTR0_8BPP | ATTR0_REG | ATTR0_Y(ScreenPositionY),
+				  ATTR1_SIZE(Size) | ATTR1_X(ScreenPositionX) | ATTR1_HFLIP,
 				  ATTR2_ID(currentAnimation->Frames[currentAnimation->CurrentFrame]));
 	}
 	else
 	{
-	SetObject(objectID, ATTR0_SHAPE(0) | ATTR0_8BPP | ATTR0_REG | ATTR0_Y(ScreenPositionY),
-                      ATTR1_SIZE(0) | ATTR1_X(ScreenPositionX),
+	SetObject(objectID, ATTR0_SHAPE(Shape) | ATTR0_8BPP | ATTR0_REG | ATTR0_Y(ScreenPositionY),
+                      ATTR1_SIZE(Size) | ATTR1_X(ScreenPositionX),
                       ATTR2_ID(currentAnimation->Frames[currentAnimation->CurrentFrame]));
 	}
 

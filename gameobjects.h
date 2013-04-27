@@ -42,17 +42,13 @@ class Animation
 class GameObject
 {
 	private:
-		int objectID; // For Object Managing Purposes
-		
-		bool facingLeft;
-		
-
 		// Pointer to current map
 		u16** currentMap;
 					
 		u16 frameCounter; // For animations
 		
 	public:
+		int objectID; // For Object Managing Purposes
 		// Vectors are useful for movement/collision stuff.
 		Vector3D Position;
 		Vector3D Velocity;
@@ -64,6 +60,9 @@ class GameObject
 		double Height;
 		double HalfWidth;
 		
+		int Shape;
+		int Size;
+		
 		// These are used to track the object's position on-screen. Can be useful for scrolling etc.
 		int ScreenPositionX;
 		int ScreenPositionY;
@@ -71,8 +70,8 @@ class GameObject
 		int ScrollY;
 		
 		//Animation holder
-	
 		Animation* currentAnimation;
+		bool facingLeft;
 	
 		//Main Functions
 		GameObject(int x, int y, int width, int height, int objID);

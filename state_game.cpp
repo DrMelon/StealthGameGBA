@@ -3,6 +3,8 @@
 bool gameHasInit = false;
 unsigned short gameframeCounter = 0;
 Player* thePlayer = 0;
+SecurityCamera* theCam = 0;
+
 
 void Game()
 {
@@ -34,27 +36,32 @@ void Game_Init()
 	REG_BG0CNT = BG_CBB(2) | BG_SBB(27) | BG_8BPP | BG_REG_32x32;	
 	
 	// Load Palette
-	memcpy(pal_bg_mem, prototype_gfxPal, prototype_gfxPalLen);
+	LoadPaletteBG(prototype_gfxPal, prototype_gfxPalLen);
 	// Copy to Sprite Palette
 	memcpy(pal_obj_mem, pal_bg_mem, prototype_gfxPalLen);
-	// Fill charblock 0
-	memcpy(&tile_mem[0][0], prototype_gfxTiles, prototype_gfxTilesLen);
-	// Charblock 1
-	memcpy(&tile_mem[1][0], shadowtiles_simpleTiles, shadowtiles_simpleTilesLen);
+	
+	// Load Game Tiles
+	LoadIntoCharblock(0, 0, prototype_gfxTiles, prototype_gfxTilesLen);
+	
+	// Load Shadow Tiles
+	LoadIntoCharblock(1, 0, shadowtiles_simpleTiles, shadowtiles_simpleTilesLen);
+	
+	// Load Vision Cones
+	LoadIntoCharblock(4, 32, visionconeTiles, visionconeTilesLen);
 
 	// Clear Screenblocks 
-	memcpy(&se_mem[30], Background, sizeof(u16)*32*32); // Fill BG3 with Background (wallpaper) tiles
-	memcpy(&se_mem[29][0], Blank, sizeof(u16)*32*32); // Filling the others with Blank tiles.
-	memcpy(&se_mem[28][0], Blank, sizeof(u16)*32*32); // 
-	memcpy(&se_mem[27][0], Blank, sizeof(u16)*32*32); // 
+	CopyLevelToScreenblock(30, (u16**)Background); // Fill BG3 with Background (wallpaper) tiles
+	CopyLevelToScreenblock(29, (u16**)Blank); // Filling the others with Blank tiles.
+	CopyLevelToScreenblock(28, (u16**)Blank); // 
+	CopyLevelToScreenblock(27, (u16**)Blank); // 
 	
 	// Load Level 1 Layout into BG1
-	memcpy(&se_mem[28][0], Level1, sizeof(u16)*32*32);
+	CopyLevelToScreenblock(28, (u16**)Level1);
 	
 	// Initialize Object Buffer
 	InitializeObjects();
 	
-	// Copying tiles from charblock 0 to charblock 4
+	// Copying player tiles from charblock 0 to charblock 4
 	CopyTile(13, 0, 0, 4); // Player Idle Tile is 13
 	
 	CopyTile(29, 0, 1, 4);  // Walk Tile 1 is 29
@@ -73,15 +80,21 @@ void Game_Init()
 	
 	
 	// Create Player object
-	thePlayer = new Player(32, 32, 6, 7, 0);
+	thePlayer = new Player(32, 32, 6, 7, 1);
+	theCam = new SecurityCamera(64, 64, 64, 32, 8);
 	
 	// Set up Maximum Speed
 	thePlayer->MaxVelocity.X = (double)0.7;
 	thePlayer->MaxVelocity.Y = 6;
+
 	
 	
 	// Set up shadows for Level
 	GenerateShadowMap();
+	
+	
+	
+	
 
 	
 
@@ -105,23 +118,13 @@ void Game_Input()
 	{
 		thePlayer->Acceleration.X = -0.1;
 		thePlayer->currentAnimation = thePlayer->runAnim;
-		thePlayer->runAnim->Flipped = true;
-		thePlayer->lookupAnim->Flipped = true;
-		thePlayer->lookdownAnim->Flipped = true;
-		thePlayer->idleAnim->Flipped = true;
-		thePlayer->hackAnim->Flipped = true;
-		thePlayer->deathAnim->Flipped = true;
+		thePlayer->facingLeft = true;
 	}
 	else if(key_is_down(KEY_RIGHT))
 	{
 		thePlayer->Acceleration.X = 0.1;
 		thePlayer->currentAnimation = thePlayer->runAnim;
-		thePlayer->runAnim->Flipped = false;
-		thePlayer->idleAnim->Flipped = false;
-		thePlayer->hackAnim->Flipped = false;
-		thePlayer->deathAnim->Flipped = false;		
-		thePlayer->lookupAnim->Flipped = false;
-		thePlayer->lookdownAnim->Flipped = false;
+		thePlayer->facingLeft = false;
 	}
 	else
 	{
@@ -178,12 +181,14 @@ void Game_Update()
 {
 	//Game logic goes here
 	thePlayer->Update();
+	theCam->Update();
 }
 
 void Game_Draw()
 {
 	//Game draw routines go here
 	thePlayer->Draw();
+	theCam->Draw();
 	
 	// Update Objects
 	UpdateObjects();

@@ -2,6 +2,7 @@
 
 // ToncHelper.h - this exposes various tonc functionalities in easier to remember functions.
 #include "tonclib/include/tonc.h"
+#include <string>
 
 // Object Stuff
 
@@ -14,7 +15,7 @@ INLINE void InitializeObjects()
 
 INLINE void UpdateObjects()
 {
-	oam_copy(oam_mem, obj_buffer, 1);
+	oam_copy(oam_mem, obj_buffer, 128);
 }
 
 INLINE void SetObject(int objectID, u16 attribute0, u16 attribute1, u16 attribute2)
@@ -43,4 +44,24 @@ INLINE void SetTile(u16 screenblock, u16 x, u16 y, u16 tilenum)
 INLINE u16 GetTile(u16 screenblock, u16 x, u16 y)
 {
 	return se_mem[screenblock][x + y*32];
+}
+
+INLINE void LoadPaletteBG(const short unsigned int* palettedata, int len)
+{
+	memcpy(pal_bg_mem, palettedata, len);
+}
+
+INLINE void LoadPaletteObj(const short unsigned int* palettedata, int len)
+{
+	memcpy(pal_obj_mem, palettedata, len);
+}
+
+INLINE void LoadIntoCharblock(u16 charblock, u16 position, const u16* data, int len)
+{
+	memcpy(&tile_mem[charblock][position], data, len);
+}
+
+INLINE void CopyLevelToScreenblock(u16 screenblock, u16** data)
+{
+	memcpy(&se_mem[screenblock][0], data, sizeof(u16)*32*32);
 }

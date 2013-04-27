@@ -32,6 +32,7 @@ OBJECTS = \
 	$(TARGET).o \
 	gameobjects.o \
 	player.o \
+	securitycam.o \
 	state_menu.o \
 	state_game.o \
 	state_pause.o \
@@ -39,6 +40,7 @@ OBJECTS = \
 	prototype_gfx.o \
 	pausestuff.o \
 	shadowtiles_simple.o \
+	visioncone.o \
 	levels.o \
 	tonchelper.o \
 	libtonc.a

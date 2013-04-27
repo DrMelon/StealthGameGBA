@@ -9,8 +9,9 @@
 // Master State List
 #include "statelist.h"
 
-// Players
+// Objects
 #include "player.h"
+#include "securitycam.h"
 
 // Images Needed
 #include "prototype_gfx.h"
