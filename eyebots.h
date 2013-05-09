@@ -17,6 +17,7 @@ class EyeBot : public GameObject
 		Animation* eyeBotSide;
 		Animation* eyeBotDown;
 
+		SecurityCamera* myCam; // Eyebot's view.
 		
 		//Main Functions
 		EyeBot(int x, int y, int width, int height, int objID);

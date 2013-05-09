@@ -13,16 +13,26 @@ EyeBot::EyeBot(int x, int y, int width, int height, int objID) : super(x, y, wid
 	
 	// Default Pattern of Movement
 	Vector3D p1;
-	p1.X = 32;
+	p1.X = 16;
 	p1.Y = 16;
 	Vector3D p2;
 	p2.X = 64;
 	p2.Y = 16;
+	Vector3D p3;
+	p3.X = 64;
+	p3.Y = 64;
+	Vector3D p4;
+	p4.X = 16;
+	p3.Y = 64;
 	pathPoints.push_back(p1);
 	pathPoints.push_back(p2);
+	//pathPoints.push_back(p3);
+	//pathPoints.push_back(p4);
 	
 	MaxVelocity.X = 5;
 	MaxVelocity.Y = 5;
+	
+	myCam = new SecurityCamera(x + width, y - 16, 64, 32, 128 - objID);
 }
 
 void EyeBot::Draw()
@@ -51,6 +61,8 @@ void EyeBot::Draw()
                       ATTR1_SIZE(Size) | ATTR1_X(ScreenPositionX),
                       ATTR2_ID(currentAnimation->Frames[currentAnimation->CurrentFrame]));
 	}
+	
+	myCam->Draw();
 }
 
 void EyeBot::Update()
@@ -78,14 +90,11 @@ void EyeBot::Update()
 	}
 	
 	
-	if(fabs(Acceleration.X) < (double)0.1f) // If there is no force being applied, drag will slow us down.
-	{
-		Velocity.X *= Drag; 
-	}
+	// There is no drag
 	
 	// Check for collisions before updating position with velocity.
 	// CheckCollision will alter the velocity to prevent a collision before it happens. 
-	CheckCollision();
+	//CheckCollision();
 	
 	//Update Position using Velocity.
 	Position = AddVectors2D(Position, Velocity);		
@@ -98,6 +107,21 @@ void EyeBot::Update()
 	{
 		frameCounter = 0;
 	}	
+	
+	if(!facingLeft)
+	{
+		myCam->Position.X = Position.X + Width;
+		myCam->Position.Y = Position.Y - (double)14;
+	}
+	else
+	{
+		myCam->Position.X = Position.X - (double)62;
+		myCam->Position.Y = Position.Y - (double)12;
+	}
+
+	
+	myCam->currentAnimation->Update(frameCounter);
+	myCam->facingLeft = facingLeft;
 }
 
 void EyeBot::SwitchPoint()
@@ -119,7 +143,7 @@ void EyeBot::SwitchPoint()
 	}
 	else
 	{
-		if(distanceToNextPoint.Y > (double)0)
+		if(distanceToNextPoint.Y < (double)0)
 		{
 			currentAnimation = eyeBotUp;
 		}
@@ -158,11 +182,10 @@ void EyeBot::MoveToNextPoint()
 	
 	Normalize(amountToMove); // Convert to Unit Vector
 	
-	amountToMove = ScalarMult(amountToMove, (double)0.7); 
+	amountToMove = ScalarMult(amountToMove, (double)3);  // Slow em down a bit.
 	// Vector turns out to be reversed...
 	amountToMove.X = -amountToMove.X;
 	amountToMove.Y = -amountToMove.Y;
-	Drag = 1;
 	Velocity.X = amountToMove.X;
 	Velocity.Y = amountToMove.Y;
 	
