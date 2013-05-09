@@ -23,11 +23,11 @@ EyeBot::EyeBot(int x, int y, int width, int height, int objID) : super(x, y, wid
 	p3.Y = 64;
 	Vector3D p4;
 	p4.X = 16;
-	p3.Y = 64;
+	p4.Y = 64;
 	pathPoints.push_back(p1);
 	pathPoints.push_back(p2);
-	//pathPoints.push_back(p3);
-	//pathPoints.push_back(p4);
+	pathPoints.push_back(p3);
+	pathPoints.push_back(p4);
 	
 	MaxVelocity.X = 5;
 	MaxVelocity.Y = 5;
@@ -51,13 +51,13 @@ void EyeBot::Draw()
 	// The object creator won't allow an ID greater of 128.
 	if(facingLeft == true)
 	{
-		SetObject(objectID, ATTR0_SHAPE(Shape) | ATTR0_8BPP | ATTR0_REG | ATTR0_BLEND | ATTR0_Y(ScreenPositionY),
+		SetObject(objectID, ATTR0_SHAPE(Shape) | ATTR0_8BPP | ATTR0_REG | ATTR0_Y(ScreenPositionY),
 				  ATTR1_SIZE(Size) | ATTR1_X(ScreenPositionX) | ATTR1_HFLIP,
 				  ATTR2_ID(currentAnimation->Frames[currentAnimation->CurrentFrame]));
 	}
 	else
 	{
-	SetObject(objectID, ATTR0_SHAPE(Shape) | ATTR0_8BPP | ATTR0_REG | ATTR0_BLEND | ATTR0_Y(ScreenPositionY),
+	SetObject(objectID, ATTR0_SHAPE(Shape) | ATTR0_8BPP | ATTR0_REG | ATTR0_Y(ScreenPositionY),
                       ATTR1_SIZE(Size) | ATTR1_X(ScreenPositionX),
                       ATTR2_ID(currentAnimation->Frames[currentAnimation->CurrentFrame]));
 	}
@@ -67,6 +67,7 @@ void EyeBot::Draw()
 
 void EyeBot::Update()
 {
+	myCam->Update();
 	MoveToNextPoint();
 	//Update Velocity using Acceleration.
 	Velocity = AddVectors2D(Velocity, Acceleration);	
@@ -90,11 +91,8 @@ void EyeBot::Update()
 	}
 	
 	
-	// There is no drag
+	// There is no drag or collision
 	
-	// Check for collisions before updating position with velocity.
-	// CheckCollision will alter the velocity to prevent a collision before it happens. 
-	//CheckCollision();
 	
 	//Update Position using Velocity.
 	Position = AddVectors2D(Position, Velocity);		
@@ -118,9 +116,6 @@ void EyeBot::Update()
 		myCam->Position.X = Position.X - (double)62;
 		myCam->Position.Y = Position.Y - (double)12;
 	}
-
-	
-	myCam->currentAnimation->Update(frameCounter);
 	myCam->facingLeft = facingLeft;
 }
 
@@ -182,7 +177,7 @@ void EyeBot::MoveToNextPoint()
 	
 	Normalize(amountToMove); // Convert to Unit Vector
 	
-	amountToMove = ScalarMult(amountToMove, (double)3);  // Slow em down a bit.
+	amountToMove = ScalarMult(amountToMove, (double)0.7);  // Slow it down a little.
 	// Vector turns out to be reversed...
 	amountToMove.X = -amountToMove.X;
 	amountToMove.Y = -amountToMove.Y;
