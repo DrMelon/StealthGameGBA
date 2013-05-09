@@ -12,11 +12,14 @@
 // Objects
 #include "player.h"
 #include "securitycam.h"
+#include "eyebots.h"
 
 // Images Needed
 #include "prototype_gfx.h"
 #include "shadowtiles_simple.h"
 #include "visioncone.h"
+#include "gfx_eyebots.h"
+
 
 // Levels
 #include "levels.h"

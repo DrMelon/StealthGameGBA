@@ -11,7 +11,7 @@ INC = -I .\\libs
 # -Wall   Enable all warnings
 # -S 	  Generate assembly
 #CFLAGS = -g -O3 -Wall
-CGLAGS = -g -Wall
+CGLAGS = -g -O3 -Wall
 
 # Architecture options for the GBA.
 #MODEL = -mthumb -mthumb-interwork -specs=gba_mb.specs
@@ -32,6 +32,7 @@ OBJECTS = \
 	$(TARGET).o \
 	gameobjects.o \
 	player.o \
+	eyebots.o \
 	securitycam.o \
 	state_menu.o \
 	state_game.o \
@@ -41,6 +42,7 @@ OBJECTS = \
 	pausestuff.o \
 	shadowtiles_simple.o \
 	visioncone.o \
+	gfx_eyebots.o \
 	levels.o \
 	tonchelper.o \
 	libtonc.a

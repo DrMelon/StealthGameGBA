@@ -4,6 +4,7 @@ bool gameHasInit = false;
 unsigned short gameframeCounter = 0;
 Player* thePlayer = 0;
 SecurityCamera* theCam = 0;
+EyeBot* theEyeBot = 0;
 
 
 void Game()
@@ -46,8 +47,9 @@ void Game_Init()
 	// Load Shadow Tiles
 	LoadIntoCharblock(1, 0, shadowtiles_simpleTiles, shadowtiles_simpleTilesLen);
 	
-	// Load Vision Cones
-	LoadIntoCharblock(4, 32, visionconeTiles, visionconeTilesLen);
+	// Load Eyebots & Vision Cones
+	LoadIntoCharblock(4, 32, eyebotsTiles, eyebotsTilesLen);
+	LoadIntoCharblock(4, 190, visionconeTiles, visionconeTilesLen);
 
 	// Clear Screenblocks 
 	CopyLevelToScreenblock(30, (u16**)Background); // Fill BG3 with Background (wallpaper) tiles
@@ -82,6 +84,7 @@ void Game_Init()
 	// Create Player object
 	thePlayer = new Player(32, 32, 6, 7, 1);
 	theCam = new SecurityCamera(64, 64, 64, 32, 8);
+	theEyeBot = new EyeBot(16, 16, 6, 6, 4);
 	
 	// Set up Maximum Speed
 	thePlayer->MaxVelocity.X = (double)0.7;
@@ -181,7 +184,12 @@ void Game_Update()
 {
 	//Game logic goes here
 	thePlayer->Update();
+	theCam->ScrollX = thePlayer->ScrollX;
+	theCam->ScrollY = thePlayer->ScrollY;
 	theCam->Update();
+	theEyeBot->ScrollX = thePlayer->ScrollX;
+	theEyeBot->ScrollY = thePlayer->ScrollY;	
+	theEyeBot->Update();
 }
 
 void Game_Draw()
@@ -189,7 +197,7 @@ void Game_Draw()
 	//Game draw routines go here
 	thePlayer->Draw();
 	theCam->Draw();
-	
+	theEyeBot->Draw();
 	// Update Objects
 	UpdateObjects();
 }

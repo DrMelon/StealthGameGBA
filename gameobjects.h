@@ -41,13 +41,14 @@ class Animation
 
 class GameObject
 {
-	private:
-		// Pointer to current map
-		u16** currentMap;
-					
-		u16 frameCounter; // For animations
+
+
 		
 	public:
+		// Pointer to current map
+		u16** currentMap;
+						
+		u16 frameCounter; // For animations	
 		int objectID; // For Object Managing Purposes
 		// Vectors are useful for movement/collision stuff.
 		Vector3D Position;

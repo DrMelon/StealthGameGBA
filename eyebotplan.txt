@@ -1,0 +1,46 @@
+
+
+Eyebot Plan:
+
+Eyebots have vision cones offset to them depending on their direction.
+
+	Facing Up:
+		Middle, Top
+	Facing Down:
+		Middle, Bottom
+	Facing Left:
+		Left, Middle
+	Facing Right:
+		Right, Middle
+		
+The bots glide around in square and line patterns. Their behaviour is determined by the tiles in the environment, a-la N:
+That is, if they fly into a tile, they turn clockwise 90 degrees.
+
+
+If the character is spotted by the cone, they are shot with a laser and instantly killed.
+
+
++--------------------------------------------------------------------+
+ //////////                                          !
+ //   [  //       _____________                     ))o)
+ //   [ O//      <(_I_SEE_YOU__)                  ////////                         
+ //////////                                         ////
++--------------------------------------------------------------------+
+
+
+The vision cone just needs to check certain square tiles it's on. Mainly, a line down the middle and towards the large end, one tile either side of that line.
+
+This is fairly easy to do code-wise.
+
+
+                |||
+   o  -------------   
+                |||
+				
+				
+				
+				
+Even easier than checking all the spaces each time would be to only check the cone the if the tile the player is on is within the cone's square bounds. 
+That way you're not checking so much! Plus, the inclusion of the tile that the player is on makes detection a little easier.
+
+The cone simply finds if the player is in the view, and if they are, checks against their stealthstate.

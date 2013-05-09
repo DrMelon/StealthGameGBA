@@ -5,7 +5,7 @@ SecurityCamera::SecurityCamera(int x, int y, int width, int height, int objID) :
 	//The security camera object is actually just its view-cone!
 	// The camera itself is just on the map.
 	visionCone = new Animation(1, 1);
-	visionCone->Frames[0] = 16*2;
+	visionCone->Frames[0] = 95*2;
 	
 	//Security Camera VisionCones are 64x32: 1x3 on the GBA's Object Size Map
 	Shape = 1;
