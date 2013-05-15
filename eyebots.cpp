@@ -1,6 +1,6 @@
 #include "eyebots.h"
 
-EyeBot::EyeBot(int x, int y, int width, int height, int objID) : super(x, y, width, height, objID)
+EyeBot::EyeBot(int x, int y, int width, int height, int objID, Player* _thePlayer) : super(x, y, width, height, objID)
 {
 	eyeBotSide = new Animation(1, 1);
 	eyeBotSide->Frames[0] = 16*2;
@@ -9,30 +9,23 @@ EyeBot::EyeBot(int x, int y, int width, int height, int objID) : super(x, y, wid
 	eyeBotDown = new Animation(1, 1);
 	eyeBotDown->Frames[0] = 18*2;
 	
+	
+	
 	currentAnimation = eyeBotSide;
 	
-	// Default Pattern of Movement
+	// Default Pattern of Movement is just sitting in-place.
 	Vector3D p1;
-	p1.X = 16;
-	p1.Y = 16;
-	Vector3D p2;
-	p2.X = 64;
-	p2.Y = 16;
-	Vector3D p3;
-	p3.X = 64;
-	p3.Y = 64;
-	Vector3D p4;
-	p4.X = 16;
-	p4.Y = 64;
+	p1.X = x;
+	p1.Y = x;
 	pathPoints.push_back(p1);
-	pathPoints.push_back(p2);
-	pathPoints.push_back(p3);
-	pathPoints.push_back(p4);
+	
 	
 	MaxVelocity.X = 5;
 	MaxVelocity.Y = 5;
 	
-	myCam = new SecurityCamera(x + width, y - 16, 64, 32, 128 - objID);
+	thePlayer = _thePlayer;
+	
+	myCam = new SecurityCamera(x + width, y - 16, 64, 32, 128 - objID, thePlayer);
 }
 
 void EyeBot::Draw()
@@ -44,7 +37,14 @@ void EyeBot::Draw()
 	ScreenPositionX = (int)Position.X - ScrollX;
 	ScreenPositionY = (int)Position.Y - ScrollY;
 	
-	
+	if(Velocity.X > (double)0.1)
+	{
+		facingLeft = false;
+	}
+	else if(Velocity.X < (double)-0.1)
+	{
+		facingLeft = true;
+	}
 
 	
 	// Objects are given an ID on spawning - all objects are spawned through an object creator.
@@ -62,12 +62,37 @@ void EyeBot::Draw()
                       ATTR2_ID(currentAnimation->Frames[currentAnimation->CurrentFrame]));
 	}
 	
+	// Check to see if we're on screen or not...
+	if(ScreenPositionX < 0 || ScreenPositionX > 272 || ScreenPositionY < 0 || ScreenPositionY > 160)
+	{
+		SetObject(objectID, ATTR0_SHAPE(Shape) | ATTR0_8BPP | ATTR0_HIDE | ATTR0_REG | ATTR0_Y(32),
+                      ATTR1_SIZE(Size) | ATTR1_X(32),
+                      ATTR2_ID(currentAnimation->Frames[currentAnimation->CurrentFrame]));
+	}
+	
+	if(!facingLeft)
+	{
+		myCam->Position.X = Position.X + Width;
+		myCam->Position.Y = Position.Y - (double)14;
+	}
+	else
+	{
+		myCam->Position.X = Position.X - (double)62;
+		myCam->Position.Y = Position.Y - (double)12;
+	}
+	myCam->facingLeft = facingLeft;
+	
+	
 	myCam->Draw();
 }
 
 void EyeBot::Update()
 {
+	myCam->ScrollX = ScrollX;
+	myCam->ScrollY = ScrollY;
 	myCam->Update();
+	AlertState = myCam->AlertState;
+	
 	MoveToNextPoint();
 	//Update Velocity using Acceleration.
 	Velocity = AddVectors2D(Velocity, Acceleration);	
@@ -106,17 +131,8 @@ void EyeBot::Update()
 		frameCounter = 0;
 	}	
 	
-	if(!facingLeft)
-	{
-		myCam->Position.X = Position.X + Width;
-		myCam->Position.Y = Position.Y - (double)14;
-	}
-	else
-	{
-		myCam->Position.X = Position.X - (double)62;
-		myCam->Position.Y = Position.Y - (double)12;
-	}
-	myCam->facingLeft = facingLeft;
+	
+	
 }
 
 void EyeBot::SwitchPoint()
@@ -141,21 +157,27 @@ void EyeBot::SwitchPoint()
 		if(distanceToNextPoint.Y < (double)0)
 		{
 			currentAnimation = eyeBotUp;
+			currentDirection = 2; // Up
 		}
 		else
 		{
 			currentAnimation = eyeBotDown;
+			currentDirection = 3; // Down
 		}
 	}
 	
 	if(distanceToNextPoint.X > (double)0)
 	{
 		facingLeft = true;
+		currentDirection = 1; // Left
 	}
 	else
 	{
 		facingLeft = false;
+		currentDirection = 0; // Right
 	}
+	
+	myCam->direction = currentDirection;
 	
 }
 
@@ -167,6 +189,14 @@ void EyeBot::MoveToNextPoint()
 	// How far are we from the target?
 	amountToMove.X = Position.X - pathPoints[currentPoint].X;
 	amountToMove.Y = Position.Y - pathPoints[currentPoint].Y;
+	
+	// If we're suspicious or alerted, we move towards the player to try and kill them.
+	if(AlertState != 0)
+	{
+		amountToMove.X = Position.X - thePlayer->Position.X;
+		amountToMove.Y = Position.Y - thePlayer->Position.Y;
+		
+	}
 	
 	// If we're really close, we made it.
 	if(fabs(amountToMove.X) < (double)1 && fabs(amountToMove.Y) < (double)1)

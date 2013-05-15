@@ -12,7 +12,9 @@ class Player : public GameObject
 	public:
 	
 		typedef GameObject super; // Lets me use super() or super::Foo() for parent-class stuff.
-		
+		bool CanJump;
+		bool CanWallJump;
+		bool crouched;
 		u16 StealthState; //Stealth State: 0 = Fully Visible, 1 = Semi-Hidden, 2 = Fully Hidden, 3 = Semi-Hidden again
 	
 		// Used animations
@@ -22,6 +24,7 @@ class Player : public GameObject
 		Animation* lookupAnim;
 		Animation* lookdownAnim;	
 		Animation* deathAnim;
+		Animation* wallJumpAnim;
 	
 		//Main Functions
 		Player(int x, int y, int width, int height, int objID);

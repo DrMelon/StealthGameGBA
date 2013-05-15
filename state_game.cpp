@@ -3,9 +3,8 @@
 bool gameHasInit = false;
 unsigned short gameframeCounter = 0;
 Player* thePlayer = 0;
-SecurityCamera* theCam = 0;
-EyeBot* theEyeBot = 0;
-
+//EyeBot* theEyeBot = 0;
+Level* currentLevel = 0;
 
 void Game()
 {
@@ -15,8 +14,8 @@ void Game()
 		gameHasInit = true;
 	}
 	
-	Game_Update();
 	Game_Input();
+	Game_Update();
 	Game_Draw();
 	
 	gameframeCounter++; // Update frame counter for this state, resetting whenever it hits 32.
@@ -57,8 +56,9 @@ void Game_Init()
 	CopyLevelToScreenblock(28, (u16**)Blank); // 
 	CopyLevelToScreenblock(27, (u16**)Blank); // 
 	
-	// Load Level 1 Layout into BG1
-	CopyLevelToScreenblock(28, (u16**)Level1);
+
+	//CopyLevelToScreenblock(28, (u16**)Level1);
+	
 	
 	// Initialize Object Buffer
 	InitializeObjects();
@@ -79,28 +79,42 @@ void Game_Init()
 	
 	CopyTile(14, 0, 9, 4); // Looking up is 14
 	CopyTile(15, 0,10, 4); // Looking down/crouching is 15
+	CopyTile(31, 0,11, 4); // Walljumping is 31
 	
 	
 	// Create Player object
 	thePlayer = new Player(32, 32, 6, 7, 1);
-	theCam = new SecurityCamera(64, 64, 64, 32, 8);
-	theEyeBot = new EyeBot(16, 16, 6, 6, 4);
+	//theEyeBot = new EyeBot(16, 16, 6, 6, 4, thePlayer);
 	
 	// Set up Maximum Speed
-	thePlayer->MaxVelocity.X = (double)0.7;
+	
+	thePlayer->MaxVelocity.X = 6;
 	thePlayer->MaxVelocity.Y = 6;
-
+	
+	// Load Level 1 Layout into BG1
 	
 	
+	// DEBUG: LEVEL 1 INFO
+	Vector3D startLocation;
+	startLocation.X = 32;
+	startLocation.Y = 32;
+	std::vector<Vector3D*> eyebots;
+	Vector3D* eyebot1 = new Vector3D();
+	eyebot1->X = 56;
+	eyebot1->Y = 48;
+	eyebots.push_back(eyebot1);
+	Vector3D eyebotpt2;
+	eyebotpt2.X = 56;
+	eyebotpt2.Y = 16;
+	std::vector<Vector3D> eyebot1path;
+	eyebot1path.push_back(eyebotpt2);
+	std::vector< std::vector<Vector3D> > eyebotPaths;
+	eyebotPaths.push_back(eyebot1path);
+	//// END OF DEBUG
+	
+	currentLevel = new Level((u16**)Level1, thePlayer, startLocation, eyebots, eyebotPaths, eyebotpt2);
 	// Set up shadows for Level
 	GenerateShadowMap();
-	
-	
-	
-	
-
-	
-
 }
 
 void Game_Input()
@@ -139,28 +153,34 @@ void Game_Input()
 		//Look up!
 		thePlayer->currentAnimation = thePlayer->lookupAnim;
 	}
-	
+	thePlayer->crouched = false;
 	if(key_is_down(KEY_DOWN))
 	{
 		//Look down/crouch!
 		thePlayer->currentAnimation = thePlayer->lookdownAnim;
-		//Crouching in half-light makes us not visible:
-		if(thePlayer->StealthState == 1)
-		{
-			thePlayer->StealthState = 2;
-		}
-		//But in reverse-slopes, it brings us into the light *more*
-		if(thePlayer->StealthState == 3)
-		{
-			thePlayer->StealthState = 0;
-		}
+		thePlayer->crouched = true;
 	}
 
 	
 	if(key_hit(KEY_A))
 	{
 		//Check to see if we can jump
-		thePlayer->Velocity.Y = -4;
+		if(thePlayer->CanJump)
+		{
+			thePlayer->Velocity.Y = -4;
+		}
+		else if(thePlayer->CanWallJump)
+		{
+			thePlayer->Velocity.Y = -4;
+			if(thePlayer->facingLeft == true)
+			{
+				thePlayer->Velocity.X = 2;
+			}
+			else
+			{
+				thePlayer->Velocity.X = -2;
+			}
+		}
 	}
 	if(key_is_down(KEY_B))
 	{
@@ -184,20 +204,16 @@ void Game_Update()
 {
 	//Game logic goes here
 	thePlayer->Update();
-	theCam->ScrollX = thePlayer->ScrollX;
-	theCam->ScrollY = thePlayer->ScrollY;
-	theCam->Update();
-	theEyeBot->ScrollX = thePlayer->ScrollX;
-	theEyeBot->ScrollY = thePlayer->ScrollY;	
-	theEyeBot->Update();
+	currentLevel->UpdateAlertStatus();
+	currentLevel->UpdateEnemies();
+	//check win
 }
 
 void Game_Draw()
 {
 	//Game draw routines go here
 	thePlayer->Draw();
-	theCam->Draw();
-	theEyeBot->Draw();
+	currentLevel->Draw();
 	// Update Objects
 	UpdateObjects();
 }

@@ -4,6 +4,11 @@
 #include "tonclib/include/tonc.h"
 #include <string>
 
+// Defines
+#define TILE_EMPTY 7
+
+
+
 // Object Stuff
 
 extern OBJ_ATTR obj_buffer[128]; // Object Buffer declared here, does not need to be separately declared elsewhere.

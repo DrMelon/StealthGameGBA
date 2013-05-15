@@ -22,12 +22,16 @@ Player::Player(int x, int y, int width, int height, int objID) : super(x, y, wid
 	deathAnim->Frames[1] = 6*2;
 	deathAnim->Frames[2] = 7*2;
 	deathAnim->Frames[3] = 8*2;
+	deathAnim->Loop = false;
 	
 	lookupAnim = new Animation(1,1);
 	lookupAnim->Frames[0] = 9*2;
 	
 	lookdownAnim = new Animation(1,1);
 	lookdownAnim->Frames[0] = 10*2;
+	
+	wallJumpAnim = new Animation(1,1);
+	wallJumpAnim->Frames[0] = 11*2;
 	
 	currentAnimation = idleAnim;
 
@@ -76,7 +80,7 @@ void Player::Draw()
 void Player::Update()
 {
 	super::Update();
-	
+	CheckCollision();
 	//Update Scrolling from Position.
 	
 	if(((int)Position.X - ScrollX) > SCREEN_WIDTH - 16)
@@ -107,7 +111,20 @@ void Player::Update()
 	
 	// Change stealth state depending on area visiblity.
 	StealthState = GetMapTileAt(Position.X+HalfWidth, Position.Y, 29);
-
+	if(crouched)
+	{
+		//Crouching in half-light makes us not visible:
+		if(StealthState == 1)
+		{
+			StealthState = 2;
+		}
+		//But in reverse-slopes, it brings us into the light *more*
+		if(StealthState == 3)
+		{
+			StealthState = 0;
+		}
+	}
+	
 
 	
 }
@@ -119,5 +136,28 @@ u16 Player::GetMapTileAt(int x, int y, int screenblock = 28)
 
 void Player::CheckCollision()
 {
-	super::CheckCollision();
+	CanJump = false;
+	CanWallJump = false;
+	// If we're on the ground, we can jump.
+	if(GetMapTileAt(Position.X+HalfWidth, Position.Y+Height+(double)8, 28) != TILE_EMPTY)
+	{
+		CanJump = true;
+		MaxVelocity.X = (double)0.7;
+		Drag = (double)0.3;
+	}
+	else
+	{
+		//Higher airspeed
+		MaxVelocity.X = 6;
+		Drag = (double)1; //reducing air friction too
+		// If we're touching a wall, we can walljump.
+		if(GetMapTileAt(Position.X - Velocity.X - (double)1, Position.Y, 28) != TILE_EMPTY || GetMapTileAt(Position.X + Width + Velocity.X + double(1), 28) != TILE_EMPTY)
+		{
+			CanWallJump = true;
+			currentAnimation = wallJumpAnim;
+		}
+	}
+	
+
+	super::CheckCollision();	
 }

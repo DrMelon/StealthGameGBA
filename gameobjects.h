@@ -13,7 +13,8 @@ class Animation
 		u16		NumFrames; // Max is 32
 		u16		FrameDelay; // Delay in game frames between each frame changing
 		u16		CurrentFrame; // Frame being shown right now
-		bool	Flipped; // Flip Horizontally?
+		bool	Flipped; // Flip Horizontally
+		bool	Loop;	// Does the animation loop back to the start?
 		
 		inline Animation(u16 _numFrames, u16 _frameDelay)
 		{
@@ -21,6 +22,7 @@ class Animation
 			FrameDelay = _frameDelay;
 			CurrentFrame = 0;
 			NumFrames = _numFrames;
+			Loop = true; // Loop by default
 		}
 		
 		inline void Update(u16 frameCounter)
@@ -32,7 +34,14 @@ class Animation
 					CurrentFrame++;
 					if(CurrentFrame >= NumFrames)
 					{
-						CurrentFrame = 0;
+						if(Loop)
+						{
+							CurrentFrame = 0;
+						}
+						else
+						{
+							CurrentFrame = NumFrames - 1;
+						}
 					}
 				}
 			} 

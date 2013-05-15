@@ -42,6 +42,10 @@ void GameObject::Draw()
 {
 	//Convert world coordinates to screen coordinates - object needs to know scrolling offset.
 	ScreenPositionX = (int)Position.X - ScrollX;
+	if(facingLeft == true)
+	{
+		ScreenPositionX--;
+	}
 	ScreenPositionY = (int)Position.Y - ScrollY;
 	
 	// Objects are given an ID on spawning - all objects are spawned through an object creator.
@@ -128,19 +132,22 @@ u16 GameObject::GetMapTileAt(int x, int y, int screenblock = 28)
 	
 }
 
+
+
 void GameObject::CheckCollision()
 {
 
 	// Have to check X and Y axes separately to prevent "stickiness"
 	
-	if(GetMapTileAt(Position.X + Velocity.X, Position.Y + Height) != 7 || GetMapTileAt(Position.X + Velocity.X, Position.Y) != 7 || GetMapTileAt(Position.X + Velocity.X + Width, Position.Y) != 7 || GetMapTileAt(Position.X + Velocity.X + Width, Position.Y + Height) != 7 ) // Have to check all 4 corners for X axis
+	if(GetMapTileAt(Position.X + Velocity.X, Position.Y + Height) != TILE_EMPTY || GetMapTileAt(Position.X + Velocity.X, Position.Y) != TILE_EMPTY || GetMapTileAt(Position.X + Velocity.X + Width, Position.Y) != TILE_EMPTY || GetMapTileAt(Position.X + Velocity.X + Width, Position.Y + Height) != TILE_EMPTY ) // Have to check all 4 corners for X axis
 	{																																						
 		Velocity.X = 0;																																		
 	}                                                                                                                                                       
 	
-	if(GetMapTileAt(Position.X, Position.Y + Velocity.Y + Height) != 7 || GetMapTileAt(Position.X + Width, Position.Y + Velocity.Y) != 7 || GetMapTileAt(Position.X, Position.Y + Velocity.Y) != 7 || GetMapTileAt(Position.X + Width, Position.Y + Velocity.Y + Height) != 7 ) // Have to check all 4 corners for Y axis
+	if(GetMapTileAt(Position.X, Position.Y + Velocity.Y + Height) != TILE_EMPTY || GetMapTileAt(Position.X + Width, Position.Y + Velocity.Y) != TILE_EMPTY || GetMapTileAt(Position.X, Position.Y + Velocity.Y) != TILE_EMPTY || GetMapTileAt(Position.X + Width, Position.Y + Velocity.Y + Height) != TILE_EMPTY ) // Have to check all 4 corners for Y axis
 	{
 		Velocity.Y = 0;
 	}
+	
 
 }

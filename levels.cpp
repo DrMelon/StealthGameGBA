@@ -20,8 +20,8 @@
 // 23      <BLANK>
 // 24 - 26 Walls, Single Tile, Horizontal
 // 27 - 28 Security Cameras, Left and Right
-// 39 - 30 Player Walking
-// 31      <BLANK>
+// 29 - 30 Player Walking
+// 31      Player Wall-Sliding
 // 32 - 34 Walls, Single Tile, Vertical
 // 35 - 38 Player Death Animation
 // 39	   <BLANK>
@@ -243,3 +243,75 @@ void GenerateShadowMap()
 	//Copy to BG2
 	memcpy(&se_mem[29][0], shadowMap, sizeof(u16)*32*32);
 }
+
+
+Level::Level(u16** LevelData, Player* _thePlayer, Vector3D startLocation, std::vector<Vector3D*> eyebotLocations, std::vector< std::vector<Vector3D> > eyebotPaths, Vector3D diskLocation)
+{
+	// Make visible on screen
+	CopyLevelToScreenblock(28, LevelData);
+	
+	thePlayer = _thePlayer;
+	thePlayer->Position = startLocation;
+	// Create a disk!
+	// theDisk = new Disk(diskLocation);
+	
+	for(int i = 0; i < eyebotLocations.size(); i++)
+	{
+		// Create an eyebot and have it follow the path of points that was passed in!
+		EyeBot* thisEyebot = new EyeBot(eyebotLocations[i]->X, eyebotLocations[i]->Y, 6, 6, (i+2)*2, thePlayer);
+		for(int j = 0; j < eyebotPaths[i].size(); j++)
+		{
+			Vector3D newPoint; // Add navigation point
+			newPoint.X = eyebotPaths[i][j].X;
+			newPoint.Y = eyebotPaths[i][j].Y;
+			thisEyebot->pathPoints.push_back(newPoint);
+		}
+
+		// Add to list!
+		eyebotInstances.push_back(thisEyebot);
+	}
+}
+
+void Level::UpdateAlertStatus()
+{
+	for(int i = 0; i < eyebotInstances.size(); i++)
+	{
+		if(eyebotInstances[i]->AlertState != 0)
+		{
+			alertStatus = eyebotInstances[i]->AlertState;
+			break;
+		}
+		else
+		{
+			alertStatus = 0;
+		}
+	}
+}
+
+void Level::UpdateEnemies()
+{
+	for(int i = 0; i < eyebotInstances.size(); i++)
+	{
+		eyebotInstances[i]->Update();
+	}
+}
+
+void Level::Draw()
+{
+	for(int i = 0; i < eyebotInstances.size(); i++)
+	{
+		eyebotInstances[i]->Draw();
+	}	
+	
+	//draw disk
+}
+
+bool Level::CheckWin()
+{
+	// If the player is colliding with the disk, win the level.
+	
+}
+
+
+
+
