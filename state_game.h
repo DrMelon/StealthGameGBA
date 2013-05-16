@@ -20,8 +20,13 @@
 #include "visioncone.h"
 #include "gfx_eyebots.h"
 
+#include "status_bad.h"
+#include "status_good.h"
+#include "status_dead.h"
+#include "status_seen.h"
 
 // Levels
+#include "level_data.h"
 #include "levels.h"
 
 void Game_Init();
@@ -29,4 +34,5 @@ void Game_Input();
 void Game_Update();
 void Game_Draw();
 void Game_Offload();
+void Draw_Status_Indicator();
 

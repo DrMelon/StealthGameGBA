@@ -151,7 +151,7 @@ void Player::CheckCollision()
 		MaxVelocity.X = 6;
 		Drag = (double)1; //reducing air friction too
 		// If we're touching a wall, we can walljump.
-		if(GetMapTileAt(Position.X - Velocity.X - (double)1, Position.Y, 28) != TILE_EMPTY || GetMapTileAt(Position.X + Width + Velocity.X + double(1), 28) != TILE_EMPTY)
+		if(GetMapTileAt(Position.X - Velocity.X - (double)1, Position.Y, 28) != TILE_EMPTY || GetMapTileAt(Position.X + Width + HalfWidth, Position.Y, 28) != TILE_EMPTY)
 		{
 			CanWallJump = true;
 			currentAnimation = wallJumpAnim;

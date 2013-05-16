@@ -8,3 +8,4 @@
 void Menu();
 void Game();
 void Pause();
+void Win();

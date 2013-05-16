@@ -16,7 +16,7 @@ EyeBot::EyeBot(int x, int y, int width, int height, int objID, Player* _thePlaye
 	// Default Pattern of Movement is just sitting in-place.
 	Vector3D p1;
 	p1.X = x;
-	p1.Y = x;
+	p1.Y = y;
 	pathPoints.push_back(p1);
 	
 	
@@ -116,7 +116,7 @@ void EyeBot::Update()
 	}
 	
 	
-	// There is no drag or collision
+	// There is no drag or level collision
 	
 	
 	//Update Position using Velocity.
@@ -130,6 +130,12 @@ void EyeBot::Update()
 	{
 		frameCounter = 0;
 	}	
+	
+	// If we collide with the player, we kill him!
+	if(Position.X + HalfWidth > thePlayer->Position.X && Position.Y + HalfWidth > thePlayer->Position.Y && Position.X + HalfWidth  < thePlayer->Position.X + thePlayer->Width && Position.Y + HalfWidth < thePlayer->Position.Y + thePlayer->Height)
+	{
+		thePlayer->Dead = true;
+	}
 	
 	
 	

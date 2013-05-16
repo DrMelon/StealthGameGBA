@@ -46,6 +46,12 @@ void Game_Init()
 	// Load Shadow Tiles
 	LoadIntoCharblock(1, 0, shadowtiles_simpleTiles, shadowtiles_simpleTilesLen);
 	
+	// Load Status Symbols
+	LoadIntoCharblock(2, 0, status_goodTiles, status_goodTilesLen);
+	LoadIntoCharblock(2, 48, status_seenTiles, status_seenTilesLen);
+	LoadIntoCharblock(2, 96, status_badTiles, status_badTilesLen);
+	LoadIntoCharblock(2, 144, status_deadTiles, status_deadTilesLen);
+	
 	// Load Eyebots & Vision Cones
 	LoadIntoCharblock(4, 32, eyebotsTiles, eyebotsTilesLen);
 	LoadIntoCharblock(4, 190, visionconeTiles, visionconeTilesLen);
@@ -55,10 +61,8 @@ void Game_Init()
 	CopyLevelToScreenblock(29, (u16**)Blank); // Filling the others with Blank tiles.
 	CopyLevelToScreenblock(28, (u16**)Blank); // 
 	CopyLevelToScreenblock(27, (u16**)Blank); // 
-	
 
-	//CopyLevelToScreenblock(28, (u16**)Level1);
-	
+	memcpy(&se_mem[30][0], (u16**)Background, sizeof(u16)*32*32);
 	
 	// Initialize Object Buffer
 	InitializeObjects();
@@ -80,11 +84,12 @@ void Game_Init()
 	CopyTile(14, 0, 9, 4); // Looking up is 14
 	CopyTile(15, 0,10, 4); // Looking down/crouching is 15
 	CopyTile(31, 0,11, 4); // Walljumping is 31
+	CopyTile(63, 0,12, 4); // Disk is at 63 
 	
 	
 	// Create Player object
 	thePlayer = new Player(32, 32, 6, 7, 1);
-	//theEyeBot = new EyeBot(16, 16, 6, 6, 4, thePlayer);
+	
 	
 	// Set up Maximum Speed
 	
@@ -94,25 +99,30 @@ void Game_Init()
 	// Load Level 1 Layout into BG1
 	
 	
-	// DEBUG: LEVEL 1 INFO
+	// DEBUG: LEVEL 1 INFO 
+
 	Vector3D startLocation;
-	startLocation.X = 32;
-	startLocation.Y = 32;
+	startLocation.X = 9;
+	startLocation.Y = 239;
 	std::vector<Vector3D*> eyebots;
 	Vector3D* eyebot1 = new Vector3D();
-	eyebot1->X = 56;
+	eyebot1->X = 16;
 	eyebot1->Y = 48;
 	eyebots.push_back(eyebot1);
 	Vector3D eyebotpt2;
-	eyebotpt2.X = 56;
-	eyebotpt2.Y = 16;
+	eyebotpt2.X = 128;
+	eyebotpt2.Y = 48;
+	Vector3D diskloc;
+	diskloc.Y = 104;
+	diskloc.X = 8;
 	std::vector<Vector3D> eyebot1path;
 	eyebot1path.push_back(eyebotpt2);
 	std::vector< std::vector<Vector3D> > eyebotPaths;
 	eyebotPaths.push_back(eyebot1path);
+
 	//// END OF DEBUG
 	
-	currentLevel = new Level((u16**)Level1, thePlayer, startLocation, eyebots, eyebotPaths, eyebotpt2);
+	currentLevel = new Level((u16**)Level1, thePlayer, startLocation, eyebots, eyebotPaths, diskloc);
 	// Set up shadows for Level
 	GenerateShadowMap();
 }
@@ -130,83 +140,99 @@ void Game_Input()
 		g_StateStack->states.push(nextState);
 	}
 	
+	if(thePlayer->Dead == false)
+	{
+		if(key_is_down(KEY_LEFT))
+		{
+			thePlayer->Acceleration.X = -0.1;
+			thePlayer->currentAnimation = thePlayer->runAnim;
+			thePlayer->facingLeft = true;
+		}
+		else if(key_is_down(KEY_RIGHT))
+		{
+			thePlayer->Acceleration.X = 0.1;
+			thePlayer->currentAnimation = thePlayer->runAnim;
+			thePlayer->facingLeft = false;
+		}
+		else
+		{
+			thePlayer->Acceleration.X = 0;
+		}
 		
-	if(key_is_down(KEY_LEFT))
-	{
-		thePlayer->Acceleration.X = -0.1;
-		thePlayer->currentAnimation = thePlayer->runAnim;
-		thePlayer->facingLeft = true;
-	}
-	else if(key_is_down(KEY_RIGHT))
-	{
-		thePlayer->Acceleration.X = 0.1;
-		thePlayer->currentAnimation = thePlayer->runAnim;
-		thePlayer->facingLeft = false;
-	}
-	else
-	{
-		thePlayer->Acceleration.X = 0;
-	}
-	
-	if(key_is_down(KEY_UP))
-	{
-		//Look up!
-		thePlayer->currentAnimation = thePlayer->lookupAnim;
-	}
-	thePlayer->crouched = false;
-	if(key_is_down(KEY_DOWN))
-	{
-		//Look down/crouch!
-		thePlayer->currentAnimation = thePlayer->lookdownAnim;
-		thePlayer->crouched = true;
-	}
+		if(key_is_down(KEY_UP))
+		{
+			//Look up!
+			thePlayer->currentAnimation = thePlayer->lookupAnim;
+		}
+		thePlayer->crouched = false;
+		if(key_is_down(KEY_DOWN))
+		{
+			//Look down/crouch!
+			thePlayer->currentAnimation = thePlayer->lookdownAnim;
+			thePlayer->crouched = true;
+		}
 
-	
-	if(key_hit(KEY_A))
-	{
-		//Check to see if we can jump
-		if(thePlayer->CanJump)
+		
+		if(key_hit(KEY_A))
 		{
-			thePlayer->Velocity.Y = -4;
+			//Check to see if we can jump
+			if(thePlayer->CanJump)
+			{
+				thePlayer->Velocity.Y = -4;
+			}
+			else if(thePlayer->CanWallJump) // Walljump!!
+			{
+				thePlayer->Velocity.Y = -4;
+				if(thePlayer->facingLeft == true)
+				{
+					thePlayer->Velocity.X = 2;
+				}
+				else
+				{
+					thePlayer->Velocity.X = -2;
+				}
+				thePlayer->facingLeft = !thePlayer->facingLeft; // flip
+			}
 		}
-		else if(thePlayer->CanWallJump)
+		if(key_is_down(KEY_B))
 		{
-			thePlayer->Velocity.Y = -4;
-			if(thePlayer->facingLeft == true)
-			{
-				thePlayer->Velocity.X = 2;
-			}
-			else
-			{
-				thePlayer->Velocity.X = -2;
-			}
+			thePlayer->currentAnimation = thePlayer->hackAnim;
 		}
-	}
-	if(key_is_down(KEY_B))
-	{
-		thePlayer->currentAnimation = thePlayer->hackAnim;
-	}
-	if(key_hit(KEY_SELECT))
-	{	
-		//Death anim test
-		thePlayer->currentAnimation = thePlayer->deathAnim;
-	}
-	
-	// No Keys Pressed
-	if(REG_KEYINPUT == KEY_MASK)
-	{
-		thePlayer->currentAnimation = thePlayer->idleAnim;
+		
+		// No Keys Pressed
+		if(REG_KEYINPUT == KEY_MASK)
+		{
+			thePlayer->currentAnimation = thePlayer->idleAnim;
+		}
 	}
 	
 }
 
+
 void Game_Update()
 {
+	// check for game loss
+	{
+		if(thePlayer->Dead == true)
+		{
+			thePlayer->currentAnimation = thePlayer->deathAnim;
+			//show "DEAD" screen after a second or two
+		}
+	}
 	//Game logic goes here
 	thePlayer->Update();
 	currentLevel->UpdateAlertStatus();
 	currentLevel->UpdateEnemies();
 	//check win
+	if(currentLevel->CheckWin())
+	{
+		// push win state!
+		State nextState;
+		nextState.StatePointer = Win;
+		g_StateStack->states.push(nextState);		
+	}
+	
+
 }
 
 void Game_Draw()
@@ -216,6 +242,72 @@ void Game_Draw()
 	currentLevel->Draw();
 	// Update Objects
 	UpdateObjects();
+	
+	
+	// Draw Status indicator on BG0
+	Draw_Status_Indicator();
+	
+	
+	
+}
+
+void Draw_Status_Indicator()
+{
+	int blkCount = 0;
+	if(thePlayer->Dead)
+	{
+		blkCount = 72;
+		for(int j = 14; j <= 17; j++)
+		{
+			for(int i = 23; i <= 28; i++)
+			{
+				SetTile(27, i, j, blkCount);
+				blkCount++;
+			}	
+		}			
+	}
+	else
+	{	
+		switch(currentLevel->alertStatus)
+		{
+			
+			case 0:
+				for(int j = 14; j <= 17; j++)
+				{
+					for(int i = 23; i <= 28; i++)
+					{
+						SetTile(27, i, j, blkCount);
+						blkCount++;
+					}	
+				}
+				break;		
+			case 1:
+			case 3:
+				blkCount = 24;
+				for(int j = 14; j <= 17; j++)
+				{
+					for(int i = 23; i <= 28; i++)
+					{
+						SetTile(27, i, j, blkCount);
+						blkCount++;
+					}	
+				}		
+				break;
+			case 2:
+				blkCount = 48;
+				for(int j = 14; j <= 17; j++)
+				{
+					for(int i = 23; i <= 28; i++)
+					{
+						SetTile(27, i, j, blkCount);
+						blkCount++;
+					}	
+				}	
+				break;			
+		}
+	}
+	
+
 }
 
 void Game_Offload()

@@ -92,9 +92,33 @@ void SecurityCamera::Update()
 
 void SecurityCamera::CheckForPlayer()
 {
-	// Checking 4 tiles in a straight line ahead, with a couple extra for the edges of the cone.
-	for(int i = 0; i < 4; i++)
+	
+	if(alertTime > 0)
 	{
+		alertTime--;
+	}
+	if(alertTime == 0)
+	{
+		AlertState = 0;
+	}
+	
+	
+	// If we're really far from the player, don't bother.
+	if(fabs(Position.X - thePlayer->Position.X) > (double)64 || fabs(Position.Y - thePlayer->Position.Y) > (double)16)
+	{
+		return;
+	}
+	
+	// Checking a few tiles in a straight line ahead
+	double HalfHeight = Height/(double)2;
+	
+	for(int i = 0; i < 8; i++)
+	{
+		double checkPoint = (double)(i*8);
+		if(facingLeft)
+		{
+			checkPoint = -checkPoint;
+		}
 		// If we've hit solid ground or full shadow, we should do nothing.
 		if(thePlayer->StealthState == 2)
 		{
@@ -103,7 +127,7 @@ void SecurityCamera::CheckForPlayer()
 		else
 		{
 			//Check for player at this position.
-			if(Position.X + (double)(i*8) > thePlayer->Position.X && Position.Y + Height/(double)2 > thePlayer->Position.Y && Position.X + (double)(i*8) < thePlayer->Position.X + thePlayer->Width && Position.Y + Height/(double)2 < thePlayer->Position.Y + thePlayer->Height)
+			if(Position.X + checkPoint > thePlayer->Position.X && Position.Y + HalfHeight > thePlayer->Position.Y && Position.X + checkPoint < thePlayer->Position.X + thePlayer->Width && Position.Y + HalfHeight < thePlayer->Position.Y + thePlayer->Height)
 			{
 				
 				// In half-shadow, we simply become suspicious.
@@ -115,21 +139,13 @@ void SecurityCamera::CheckForPlayer()
 				else
 				{
 					AlertState = 2;
+					alertTime = 240;
 				}
 				return;
 			}
 		}
 	}
-	
-	if(alertTime > 0)
-	{
-		alertTime--;
-	}
-	if(alertTime == 0 && AlertState == 1)
-	{
-		AlertState = 0;
-	}
-	
+
 }
 
 

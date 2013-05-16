@@ -15,6 +15,7 @@ class Player : public GameObject
 		bool CanJump;
 		bool CanWallJump;
 		bool crouched;
+		bool Dead;
 		u16 StealthState; //Stealth State: 0 = Fully Visible, 1 = Semi-Hidden, 2 = Fully Hidden, 3 = Semi-Hidden again
 	
 		// Used animations

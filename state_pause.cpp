@@ -28,18 +28,8 @@ void Pause_Init()
 {
 
 	// Copy PAUSED graphics to CB2
-	memcpy(&tile_mem[2][0], pausestuffTiles, pausestuffTilesLen);
+	memcpy(&tile_mem[2][192], pausestuffTiles, pausestuffTilesLen);
 	
-	// Copy Ball & Connector graphics to CB4, at the end
-	CopyTile(6, 2, 400, 4); // Ball Topleft
-	CopyTile(7, 2, 401, 4); // Ball Topright
-	CopyTile(12, 2, 402, 4); // Ball Bottomleft
-	CopyTile(13, 2, 403, 4); // Ball Bottomright
-	
-	CopyTile(8,2, 404, 4); //Connector Topleft
-	CopyTile(9,2, 405, 4); //Connector Topright
-	CopyTile(14,2, 406, 4); //Connector Bottomleft
-	CopyTile(15,2, 407, 4); //Connector Bottomright
 	
 	
 	
@@ -73,12 +63,12 @@ void Pause_Draw()
 {
 	//Pause draw routines go here
 	// Write "PAUSED" on BG0.
-	SetTile(27, 10, 10, 0);
-	SetTile(27, 12, 10, 1);
-	SetTile(27, 14, 10, 2);
-	SetTile(27, 16, 10, 3);
-	SetTile(27, 18, 10, 4);
-	SetTile(27, 20, 10, 5);
+	SetTile(27, 10, 10, 96);
+	SetTile(27, 12, 10, 97);
+	SetTile(27, 14, 10, 98);
+	SetTile(27, 16, 10, 99);
+	SetTile(27, 18, 10, 100);
+	SetTile(27, 20, 10, 101);
 	
 	// Update Objects
 	UpdateObjects();

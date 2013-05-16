@@ -1,0 +1,7 @@
+PROPER LEVEL FORMAT	[ ] (editor?) [ ] 
+DISK              	[ ]
+NEXT LEVEL HANDLE       [ ]
+5 SET LEVELS            [ ]
+LEVEL RESETS (DEATH)    [ ]
+POSSIBLY DOORS		[ ]
+ALERT INDICATOR  	[ ]

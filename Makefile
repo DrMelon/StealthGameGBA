@@ -33,16 +33,24 @@ OBJECTS = \
 	gameobjects.o \
 	player.o \
 	eyebots.o \
+	disk.o \
 	securitycam.o \
 	state_menu.o \
 	state_game.o \
 	state_pause.o \
+	state_win.o \
 	title_screen.o \
 	prototype_gfx.o \
 	pausestuff.o \
 	shadowtiles_simple.o \
+	status_good.o \
+	status_bad.o \
+	status_seen.o \
+	status_dead.o \
+	business.o \
 	visioncone.o \
 	gfx_eyebots.o \
+	level_data.o \
 	levels.o \
 	tonchelper.o \
 	libtonc.a
